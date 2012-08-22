@@ -1,0 +1,54 @@
+body{
+	font-family: Verdana, Arial, Sans, sans; 
+	font-size: 14px;
+	color: rgb(0,0,0);
+}
+
+h1{
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 24px;
+	color: rgb(0,0,128);
+}
+
+h2{
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 18px;
+}
+
+footer{
+	font-size: 10px;
+	color: rgb(64,64,128);
+	background-color: rgb(224,224,256);
+}
+
+a{
+	color: rgb(64,64,128);
+}
+
+em{
+	font-style: italic;
+}
+
+
+#vote{
+	display: none;
+}
+
+#progress{
+	display: none;
+}
+
+#ballot{
+	display: none;
+}
+
+#vote_button{
+	color: rgb(0,0,128);
+}
+
+#status{
+	font-family: monospace;
+	background-color: rgb(224,224,224);
+}
+
+

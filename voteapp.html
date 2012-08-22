@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>UlyssesVoting - Voting client</title>
+	<meta name="description" content="Open-audit ballot generator using 
+										perfectly-private audit trail" />
+	<meta name="keywords" content="evoting, cryptography, open-audit" />
+	<meta name="author" content="Richard Mathot" />
+	<link rel="stylesheet" type="text/css" href="style/default.css" />
+
+	<!-- Loading jQuery for convenient DOM manipulation -->
+	<script type="text/javascript" src="lib/jquery/jquery-1.8.0.js"></script>
+	<!-- Online and compressed alternative for jQuery, this one can be used in 
+	order to reduce traffic load on your website -->
+	<!-- <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.0.min.js"></script> -->
+
+	<!-- Loading crypto-js SHA256 implementation -->
+	<script type="text/javascript" src="lib/crypto-js/sha256.js"></script>
+	<!-- Online and compressed alternative for crypto-js, this one can be used in 
+	order to reduce traffic load on your website -->
+	<!-- <script type="text/javascript" src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/sha256.js"></script> -->
+
+	<!-- Loading sjcl library -->
+	<script type="text/javascript" src="lib/sjcl/sjcl.js"></script>
+	<!-- Online and compressed alternative for sjcl, this one can be used in 
+	order to reduce traffic load on your website -->
+	<!-- <script type="text/javascript" src="http://bitwiseshiftleft.github.com/sjcl/sjcl.js"></script> -->
+
+
+	<!-- This global variable allows to enable/disable logging messages on the 
+	     browser console -->
+	<script type="text/javascript">
+		var DEBUG = true;
+	</script>
+
+	<!-- Loading finite fields and elliptic curve crypto -->
+	<script type="text/javascript" src="FFCrypto-js/Prime/jsbn-ec.js"></script>
+	<script type="text/javascript" src="FFCrypto-js/Prime/jsbn2-ec.js"></script>
+	<script type="text/javascript" src="FFCrypto-js/OEF/OEF.js"></script>
+	<script type="text/javascript" src="FFCrypto-js/Binary/BinaryScalar.js"></script>
+	<script type="text/javascript" src="FFCrypto-js/ECC/eccunique.js"></script>
+	
+	<!-- Loading voting protocol -->
+	<script type="text/javascript" src="js/ballot_maker.js"></script>
+	<script type="text/javascript" src="js/random_source.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	
+	<!-- Enabling the voting application only when the document is ready -->
+	<script type="text/javascript">
+		$(document).ready(
+				function(){
+					sjcl.random.startCollectors(); // PRNG entropy collection 
+					config_election(); 
+				}
+		);
+	</script>
+</head>
+<body>
+	<h1>UlyssesVoting - Voting client</h1>
+	
+	<!-- Vote form -->
+	<div id="vote">
+		<h2>Voting zone</h2>
+		<form action="post" name="vote_form">
+		<p><span id="elec_name"><b>Election name: </b></span></p>
+		<p><span id="elec_hash"><b>Election hash: </b></span></p>
+		<p><span id="elec_question"><b>Question: </b></span></p> 
+		<p>
+			<input type="radio" name="vote" value="0" /><span id="elec_0">0</span>
+			<input type="radio" name="vote" value="1" /><span id="elec_1">1</span>
+		</p>
+		<input type="button" value="Encrypt ballot" onClick="start_vote()" 
+		id="vote_button"> 
+		</form>
+	</div>
+	
+	<!-- div used to display the encrypted ballot -->
+	<div id="progress">
+		<h2>Work in progress</h2>
+		<p>We are building your ballot... please wait:&nbsp;<span id="status"></span></p>
+	</div>
+	
+	<!-- div used to display the encrypted ballot -->
+	<div id="ballot">
+		<h2>Your ballot</h2>
+		<textarea rows="25" cols="80" id="ballot_area"></textarea>
+	</div>
+	
+	<!-- Page footer: technical and contact informations -->
+	<footer>
+		<p>Author: Richard Mathot 
+		(<a href="mailto:richard.mathot@gmail.com">richard.mathot@gmail.com</a>)
+		</p>
+		<p>Last revision: <em>Aug 19, 2012.</em></p>
+		<p>Tested under: Firefox 17.0a1(2012-08-14) - Chrome 22.0.1229.2dev</p>
+		<!-- 
+		<p><a href="http://www.w3.org/html/logo/">
+			<img src="http://www.w3.org/html/logo/badge/html5-badge-h-css3.png" 
+			width="66" height="32" alt="HTML5 Powered with CSS3 / Styling" 
+			title="HTML5 Powered with CSS3 / Styling"></a>
+		</p>
+		-->
+	</footer>
+</body>
+</html>
