@@ -56,6 +56,7 @@ var h24 = nbi();
 var h25 = nbi();
 var h26 = nbi();
 var h27 = nbi();
+var h28 = nbi();
 
 var inv2 = noef(2).modInverse();
 var hh1 = new OEF();
@@ -69,6 +70,7 @@ var hh8 = new OEF();
 var hh9 = new OEF();
 var hh10 = new OEF();
 var hh11 = new OEF();
+var hh12 = new OEF();
 
 // -------------------------------------------------------------------------------------------------------------------------------------
 // Constructor
@@ -217,6 +219,9 @@ function ecpAddOEF(S) {
 	var X1 = this.coord[0];
 	var Y1 = this.coord[1];
 	var Z1 = this.coord[2];
+	var X2 = S.coord[0];
+	var Y2 = S.coord[1];
+	var Z2 = S.coord[2];
 	
 	var Z1Z1, Z2Z2, U1, U2, S1, S2, H, J, r, V, X3, Y3, Z3, t1, t2, t3;
 	
@@ -226,7 +231,7 @@ function ecpAddOEF(S) {
 	U2 = X2.multiply(Z1Z1);
 	S1 = Y1.multiply(Z2).multiply(Z2Z2);
 	S2 = Y2.multiply(Z1).multiply(Z1Z1);
-	H = U2 - U1;
+	H = U2.spSubtract(U1, hh12);
 	t1 = H.spScalarMult(2, hh1);
 	I = t1.multiply(t1);
 	J = H.multiply(I);
@@ -234,7 +239,7 @@ function ecpAddOEF(S) {
 	V = U1.multiply(I);
 	X3 = (r.multiply(r)).spSubtract(J, hh4).spSubtract(V.spScalarMult(2, hh6),
 			hh5);
-	t2 = S1.multiply(J).spScalarMult(2);
+	t2 = S1.multiply(J).spScalarMult(2, hh12);
 	Y3 = (r.multiply(V.spSubtract(X3, hh7))).spSubtract(t2, hh8);
 	t3 = Z1.spAdd(Z2, hh9);
 	Z3 = (t3.multiply(t3).spSubtract(Z1Z1, hh10).spSubtract(Z2Z2, hh11))
@@ -274,21 +279,21 @@ function ecpDobbleP() {
 	
 	A = X1.square().spMod(p, h1);
 	B = Y1.square().spMod(p, h2);
-	C = B.square.spMod(p, h3);
+	C = B.square().spMod(p, h3);
 	t1 = ((X1.spAdd(B, h4)).square().spMod(p, h5)).spSubtract(A, h6)
 			.spSubtract(A, h7);
 	D = t1.spAdd(t1, h8);
 	E = A.spAdd(A, h9).spAdd(A, h10);
 	F = E.square().spMod(p, h11);
 	
-	t2 = D.spAdd(D);
-	X3 = F.spSubtract(t2);
-	t3 = C.spAdd(C); // 2C
-	t4 = t3.spAdd(t3); // 4C
-	t5 = t4.spAdd(t4); // 8C
-	Y3 = E.multiply(D.spSubtract(X3)).spMod(p, h12).spSubtract(t5);
+	t2 = D.spAdd(D, h14);
+	X3 = F.spSubtract(t2, h18);
+	t3 = C.spAdd(C, h15); // 2C
+	t4 = t3.spAdd(t3, h16); // 4C
+	t5 = t4.spAdd(t4, h17); // 8C
+	Y3 = E.multiply(D.spSubtract(X3, h21)).spMod(p, h12).spSubtract(t5, h20);
 	t6 = Y1.multiply(Z1).spMod(p, h13);
-	Z3 = t6.spAdd(t6);
+	Z3 = t6.spAdd(t6, h19);
 	
 	this.coord = [ X3, Y3, Z3 ];
 	return this;
@@ -320,6 +325,10 @@ function ecpAddP(S) {
 	var X1 = this.coord[0];
 	var Y1 = this.coord[1];
 	var Z1 = this.coord[2];
+	var X2 = S.coord[0];
+	var Y2 = S.coord[1];
+	var Z2 = S.coord[2];
+	
 	var p = this.m;
 	
 	var z1z1, z2z2, u1, u2, s1, s2, h, i, j, r, v, x3, y3, z3, t1, t2, t3, t4;
@@ -340,14 +349,14 @@ function ecpAddP(S) {
 	r = t1.spAdd(t1, h13);
 	v = u1.multiply(i).spMod(p, h14);
 	
-	x3 = r.square().spMod(h15).spSubtract(j, h16).spSubtract((v.spAdd(v, h18)),
-			h17);
+	x3 = r.square().spMod(p, h15).spSubtract(j, h16).spSubtract(
+			(v.spAdd(v, h18)), h17);
 	t2 = s1.multiply(j).spMod(p, h19);
 	t3 = t2.spAdd(t2, h20);
 	y3 = (r.multiply(v.spSubtract(x3, h21)).spMod(p, h22)).spSubtract(t3, h23);
 	t4 = (Z1.spAdd(Z2, h24)).square().spMod(p, h25);
 	z3 = ((t4.spSubtract(z1z1, h26)).spSubtract(z2z2, h27)).multiply(h).spMod(
-			p, h26);
+			p, h28);
 	
 	this.coord = [ x3, y3, z3 ];
 	return this;

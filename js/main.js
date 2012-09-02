@@ -23,23 +23,43 @@ function config_election() {
 		}, "text");
 		
 		var g = data.crypto.g.coord;
-		// var g1 = data.crypto.g1.coord;
-		// var g = data.crypto.g.coord;
-		// var g = data.crypto.g.coord;
+		var g1 = data.crypto.g1.coord;
+		var h = [
+				[ parseInt(data.crypto.h.coord[0][0]),
+						parseInt(data.crypto.h.coord[0][1]) ],
+				[ parseInt(data.crypto.h.coord[1][0]),
+						parseInt(data.crypto.h.coord[1][1]) ] ];
+		var h1 = [
+				[ parseInt(data.crypto.h1.coord[0][0]),
+						parseInt(data.crypto.h1.coord[0][1]) ],
+				[ parseInt(data.crypto.h1.coord[1][0]),
+						parseInt(data.crypto.h1.coord[1][1]) ] ];
+		
 		G = new ecPoint([ new BigInteger(g[0]), new BigInteger(g[1]) ],
 				'curve', 'affine', 'prime', p_u_, false);
-		console.log(G.coord[0].toString());
-		console.log(G.coord[1].toString());
+		G1 = new ecPoint([ new BigInteger(g1[0]), new BigInteger(g1[1]) ],
+				'curve', 'affine', 'prime', p_u_, false);
+		H = new ecPoint([ noeftab(h[0]), noeftab(h[1]) ], 'curve', 'affine',
+				'OEF', p_u_, false);
+		H1 = new ecPoint([ noeftab(h1[0]), noeftab(h1[1]) ], 'curve', 'affine',
+				'OEF', p_u_, false);
 		
 		// Launch precomputing for point multiplication
-		// precomputeComb2() //TODO modifier cette methode
+		k = randBigInt(256).mod(p_u_);
+		var start = new Date();
+		precompG = precomputeComb2(k, G, 7);
+		precompG1 = precomputeComb2(k, G1, 7);
+		precompH = precomputeComb2(k, H, 7);
+		precompH1 = precomputeComb2(k, H1, 7);
+		var stop = new Date();
+		console.log("Precomputation time " + (stop - start) + " ms");
+		
+		// Show voting area and hide ballot area
+		$("#ballot").hide();
+		$("#progress").hide();
+		$("#vote").show('slow');
 		
 	});
-	
-	// Show voting area and hide ballot area
-	$("#ballot").hide();
-	$("#progress").hide();
-	$("#vote").show('slow');
 }
 
 /**

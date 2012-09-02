@@ -4,12 +4,14 @@
 //
 // --------------------------------------------------------------------------------------------------------------------------------
 
-var n = 24;// 13;
-var m = 10;// 18;
-var w = 2;
-var c = 75;// 1
-var p = (1 << n) - c;
-// TODO changer ça ?
+/* var n = 24;// 13; */
+var m = 2; // car champ F_p^2
+var w = -1; // car polynome irred = x^2 + 1
+/* var c = 75;// 1 */
+
+/* var p = (1 << n) - c; */
+var p = 115792089237314936872688561244471742058375878355761205198700409522629664518163;
+// 
 
 /*
  * table1 = [ 14289347, 14894395, 8423662, 7818613, 16777140, 2487794, 1882746,
@@ -84,7 +86,6 @@ OEF.prototype.addPrivate = function(a, r) {
 	var i;
 	for (i = 0; i < m; i++) {
 		r.arr[i] = (this.arr[i] + a.arr[i]) % p;
-		// ~ if (r.arr[i]>p){ r.arr[i]-=p; } //mod p (less efficient)
 	}
 	return r;
 };
@@ -102,7 +103,6 @@ OEF.prototype.subPrivate = function(a, r) {
 	var i;
 	for (i = 0; i < m; i++) {
 		r.arr[i] = (this.arr[i] - a.arr[i] + p) % p;
-		// ~ if (r.arr[i]<0){ r.arr[i]+=p; } //mod p
 	}
 	return r;
 };
@@ -165,43 +165,21 @@ OEF.prototype.multaccPrivate = function(a, r) {
 // --------------------------------------------------------------------------------------------------------------------------------
 // Multiplication without accumulation for n<=15
 //
-OEF.prototype.multsansacc = function(a) {
-
-	r = new OEF();
-	return this.multaccmodPrivate(a, r);
-};
-OEF.prototype.multsansaccPrivate = function(a) {
-
-	var i, j, k;
-	for (i = m; i;) {
-		--i;
-		for (j = m; j;) {
-			--j;
-			if (i + j > m - 1) {
-				k = i + j - m;
-				r.arr[k] += w * this.arr[i] * a.arr[j];
-				var v = r.arr[k] >> n;
-				var u = r.arr[k] - (v << n);
-				r.arr[k] = v + u;
-				if (r.arr[k] > p) {
-					r.arr[k] -= p;
-				}
-			} else {
-				k = i + j;
-				r.arr[k] += this.arr[i] * a.arr[j];
-				var v = r.arr[k] >> n;
-				var u = r.arr[k] - (v << n);
-				r.arr[k] = v + u;
-				if (r.arr[k] > p) {
-					r.arr[k] -= p;
-				}
-			}
-		}
-	}
-	
-	return r;
-};
-
+/*
+ * OEF.prototype.multsansacc = function(a) {
+ * 
+ * r = new OEF(); return this.multaccmodPrivate(a, r); };
+ * OEF.prototype.multsansaccPrivate = function(a) {
+ * 
+ * var i, j, k; for (i = m; i;) { --i; for (j = m; j;) { --j; if (i + j > m - 1) {
+ * k = i + j - m; r.arr[k] += w * this.arr[i] * a.arr[j]; var v = r.arr[k] >> n;
+ * var u = r.arr[k] - (v << n); r.arr[k] = v + u; if (r.arr[k] > p) { r.arr[k] -=
+ * p; } } else { k = i + j; r.arr[k] += this.arr[i] * a.arr[j]; var v = r.arr[k] >>
+ * n; var u = r.arr[k] - (v << n); r.arr[k] = v + u; if (r.arr[k] > p) {
+ * r.arr[k] -= p; } } } }
+ * 
+ * return r; };
+ */
 // --------------------------------------------------------------------------------------------------------------------------------
 // Multiplication by a scalar
 //
@@ -222,21 +200,15 @@ OEF.prototype.scalarMultPrivate = function(scalar, r) {
 //
 OEF.prototype.modInverse = function() {
 
-	// step 1
-	var t1 = this.frobenius(1);
-	var t2 = t1.multiply(this);
-	var t3 = t2.frobenius(2);
-	t2 = t2.multiply(t3);
-	t3 = t2.frobenius(4);
-	t2 = t2.multiply(t3);
-	t2 = t2.frobenius(2);
-	var r = t1.multiply(t2);// /a^(r-1)
-	// step 2
-	var r2 = r.multiply(this);// a^r
-	// step 3
-	r2 = modInv(r2.arr[0]);
-	// step 4
-	return r.scalarMult(r2);
+	// TODO modifier l'inversion de pt
+	
+	/*
+	 * // step 1 var t1 = this.frobenius(1); var t2 = t1.multiply(this); var t3 =
+	 * t2.frobenius(2); t2 = t2.multiply(t3); t3 = t2.frobenius(4); t2 =
+	 * t2.multiply(t3); t2 = t2.frobenius(2); var r = t1.multiply(t2);//
+	 * /a^(r-1) // step 2 var r2 = r.multiply(this);// a^r // step 3 r2 =
+	 * modInv(r2.arr[0]); // step 4 return r.scalarMult(r2);
+	 */
 };
 
 function modInv(a) {
@@ -260,71 +232,37 @@ function modInv(a) {
 	}
 	return x1;
 }
-OEF.prototype.frobenius = function(i) {
-
-	r = new OEF;
-	r.arr[0] = this.arr[0]; // elements of Fp are fixed by the map
-	if (i == 1) {
-		for ( var j = 1; j < m; j++) {
-			r.arr[j] = this.arr[j] * table1[j - 1] % p;
-		}
-	}
-	if (i == 2) {
-		for ( var j = 1; j < m; j++) {
-			r.arr[j] = this.arr[j] * table2[j - 1] % p;
-		}
-	}
-	if (i == 4) {
-		for ( var j = 1; j < m; j++) {
-			r.arr[j] = this.arr[j] * table4[j - 1] % p;
-		}
-	}
-	return r;
-};
-
-//
-// tableFrob only used to write the table when choosing a new parameters set.
-function tableFrob() {
-
-	var table1 = new Array();
-	var table2 = new Array();
-	var table4 = new Array();
-	var j;// , exponent;
-	for (j = 1; j < m; j++) {
-		table1[j - 1] = new BigInteger(w.toString()).modPow(new BigInteger(p
-				.toString()).multiply(new BigInteger(j.toString())).divide(
-				new BigInteger(m.toString())), new BigInteger(p.toString()));
-		table2[j - 1] = new BigInteger(w.toString()).modPow(new BigInteger(p
-				.toString()).square().multiply(new BigInteger(j.toString()))
-				.divide(new BigInteger(m.toString())), new BigInteger(p
-				.toString()));
-		table4[j - 1] = new BigInteger(w.toString()).modPow(new BigInteger(p
-				.toString()).square().square().multiply(
-				new BigInteger(j.toString())).divide(
-				new BigInteger(m.toString())), new BigInteger(p.toString()));
-	}
-	document.write('table1=[');
-	for (j = 1; j < m; j++) {
-		document.write(table1[j - 1]);
-		if (j < m - 1) document.write(',');
-		if (j == m - 1) document.write('];');
-	}
-	document.write("<br/>");
-	document.write('table2=[');
-	for (j = 1; j < m; j++) {
-		document.write(table2[j - 1]);
-		if (j < m - 1) document.write(',');
-		if (j == m - 1) document.write('];');
-	}
-	document.write("<br/>");
-	document.write('table4=[');
-	for (j = 1; j < m; j++) {
-		document.write(table4[j - 1]);
-		if (j < m - 1) document.write(',');
-		if (j == m - 1) document.write('];');
-	}
-	document.write("<br/>");
-}
+/*
+ * OEF.prototype.frobenius = function(i) {
+ * 
+ * r = new OEF; r.arr[0] = this.arr[0]; // elements of Fp are fixed by the map
+ * if (i == 1) { for ( var j = 1; j < m; j++) { r.arr[j] = this.arr[j] *
+ * table1[j - 1] % p; } } if (i == 2) { for ( var j = 1; j < m; j++) { r.arr[j] =
+ * this.arr[j] * table2[j - 1] % p; } } if (i == 4) { for ( var j = 1; j < m;
+ * j++) { r.arr[j] = this.arr[j] * table4[j - 1] % p; } } return r; }; // //
+ * tableFrob only used to write the table when choosing a new parameters set.
+ * function tableFrob() {
+ * 
+ * var table1 = new Array(); var table2 = new Array(); var table4 = new Array();
+ * var j;// , exponent; for (j = 1; j < m; j++) { table1[j - 1] = new
+ * BigInteger(w.toString()).modPow(new BigInteger(p .toString()).multiply(new
+ * BigInteger(j.toString())).divide( new BigInteger(m.toString())), new
+ * BigInteger(p.toString())); table2[j - 1] = new
+ * BigInteger(w.toString()).modPow(new BigInteger(p
+ * .toString()).square().multiply(new BigInteger(j.toString())) .divide(new
+ * BigInteger(m.toString())), new BigInteger(p .toString())); table4[j - 1] =
+ * new BigInteger(w.toString()).modPow(new BigInteger(p
+ * .toString()).square().square().multiply( new
+ * BigInteger(j.toString())).divide( new BigInteger(m.toString())), new
+ * BigInteger(p.toString())); } document.write('table1=['); for (j = 1; j < m;
+ * j++) { document.write(table1[j - 1]); if (j < m - 1) document.write(','); if
+ * (j == m - 1) document.write('];'); } document.write("<br/>");
+ * document.write('table2=['); for (j = 1; j < m; j++) { document.write(table2[j -
+ * 1]); if (j < m - 1) document.write(','); if (j == m - 1)
+ * document.write('];'); } document.write("<br/>"); document.write('table4=[');
+ * for (j = 1; j < m; j++) { document.write(table4[j - 1]); if (j < m - 1)
+ * document.write(','); if (j == m - 1) document.write('];'); } document.write("<br/>"); }
+ */
 
 // --------------------------------------------------------------------------------------------------------------------------------
 // Squaring with accumulation
